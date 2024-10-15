@@ -29,7 +29,7 @@ const ListTask = ({ titleName, idList }) => {
 
     useEffect(() => {
         const updateTilteList = async () => {
-            const updateTilteListTask = await axios.put(`https://670a8197ac6860a6c2c9b555.mockapi.io/ListTask/${idList}`, {
+            const updateTilteListTask = await axios.put(`https://670a8197ac6860a6c2c9b555.mockapi.io/ListTask`, {
                 title: titleList
             });
         }
@@ -123,11 +123,7 @@ const ListTask = ({ titleName, idList }) => {
         },
     };
 
-    const addTask = () => {
-        // setTasks((preTasks) => [
-        //     ...preTasks, { title: "hello" }
-        // ]);
-    };
+
     return (
         <div className="w-[100%] rounded-md bg-black px-[15px] py-[10px]	">
 

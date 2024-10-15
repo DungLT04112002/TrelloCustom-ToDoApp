@@ -8,11 +8,32 @@ const MainWorkSpace = () => {
     const [listTask, setListTasks] = useState([
 
     ]);
-    const addListTask = () => {
-        setListTasks((prevListTasks) => [
-            ...prevListTasks,
-            { id: prevListTasks.length + 1, titleName: "Doing" }
-        ]);
+    const [newListTitle, setNewListTitle] = useState(""); // State cho tiêu đề mới
+
+    // Hàm thêm một danh sách mới và gửi POST request lên server
+    const addListTask = async () => {
+        if (newListTitle.trim() === "") {
+            alert("Title cannot be empty"); // Kiểm tra nếu tiêu đề trống
+            return;
+        }
+
+        const newTaskList = {
+            title: newListTitle, // Lấy tiêu đề từ input
+        };
+
+        try {
+            // Gửi POST request để thêm danh sách mới
+            const response = await axios.post("https://670a8197ac6860a6c2c9b555.mockapi.io/ListTask", newTaskList);
+
+            // Nếu thành công, thêm danh sách vào state
+            setListTasks((prevListTasks) => [...prevListTasks, response.data]);
+
+            // Xóa input sau khi thêm
+            setNewListTitle("");
+        } catch (error) {
+            console.error("Error adding new list:", error);
+            alert("Failed to add new list.");
+        }
     };
     useEffect(() => {
         const response = async () => {
@@ -48,7 +69,22 @@ const MainWorkSpace = () => {
 
 
             {/* {listTask} */}
-            <button onClick={addListTask} className="h-[30px] w-[10vw] mx-[30px] bg-black text-slate-100 p-auto font-medium	" ><p>Add another list</p> </button>
+            <div className="flex flex-col mx-[30px]">
+                {/* Input cho tiêu đề */}
+                <input
+                    type="text"
+                    value={newListTitle}
+                    onChange={(e) => setNewListTitle(e.target.value)} // Cập nhật tiêu đề
+                    placeholder="Enter list title"
+                    className="mb-2 p-2 rounded-md border border-gray-300"
+                />
+                <button
+                    onClick={addListTask}
+                    className="h-[30px] w-[10vw] bg-black text-slate-100 font-medium"
+                >
+                    <p>Add another list</p>
+                </button>
+            </div>
         </div>
     );
 };

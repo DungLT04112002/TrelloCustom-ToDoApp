@@ -3,10 +3,12 @@ import eyeIcon from "./../../assets/eyeIcon.png"
 import iconTopic from "./../../assets/IconTopic.png"
 import Description from "./../../assets/Description.png"
 import AttachFile from "./../../assets/AttachFileIcon.png"
+import EditAbleText from "../EditAbleText/EditAbleText";
 import CheckIcon from "./../../assets/CheckIcon.png"
 import axios from "axios";
 const ModalTask = ({ idlist, titleList, task, closeModall }) => {
     const [titleList1, setTitleList1] = useState(titleList);
+    const [isChangeTitleList, setIsChangeTitleList] = useState(false);
     const [titleTask1, setTitleTask1] = useState(task.nameTask);
     const [stateWatch, setSateWatch] = useState(task.notification);
     const [description, setDescription] = useState(task.description);
@@ -20,7 +22,20 @@ const ModalTask = ({ idlist, titleList, task, closeModall }) => {
     const handleBlur = () => {
         setIsFocused(false);
     }
-    const handelChangeNameTask = () => { }
+    useEffect(() => {
+
+        const updateNameTask = async () => {
+            const updateNameTask = await axios.put(`https://670a8197ac6860a6c2c9b555.mockapi.io/Task/${idTask}`, {
+                ...task,
+                nameTask: titleTask1
+            })
+        }
+        if (isChangeTitleList) {
+            updateNameTask();
+            setIsChangeTitleList(false);
+        }
+    }, [titleTask1])
+
     const changeStateWatch = () => {
         if (stateWatch == "Watch") {
             setSateWatch("Watching");
@@ -89,7 +104,8 @@ const ModalTask = ({ idlist, titleList, task, closeModall }) => {
                 <div >
                     <div className="flex items-center h-[40px]">
                         <img src={iconTopic} className="w-[30px] mr-[20px]"></img>
-                        <p className="text-xl font-bold">{titleTask1}</p>
+                        <p className="text-xl font-bold"><EditAbleText text1={titleTask1} setText1={setTitleTask1} setIsChangeTitleList={setIsChangeTitleList}>
+                        </EditAbleText></p>
                     </div>
                     <div className="flex ml-[50px] p-[2px] mt-[10px] items-center">
                         <p className="">in list</p>
