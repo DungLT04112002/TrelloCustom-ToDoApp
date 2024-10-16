@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ListTask from "../ListTask/ListTask";
 import axios from "axios"
 import { ReactSortable } from "react-sortablejs";
-import EditAbleText from "../EditAbleText/EditAbleText";
+import ImgBackground from './../../assets/BackgroudImg.jpg'
 const MainWorkSpace = () => {
     const elements = []; // Tạo một mảng để chứa các phần tử
     const [listTask, setListTasks] = useState([
@@ -35,56 +35,57 @@ const MainWorkSpace = () => {
             alert("Failed to add new list.");
         }
     };
+    const response = async () => {
+        const result = await axios.get("https://670a8197ac6860a6c2c9b555.mockapi.io/ListTask");
+        setListTasks(result.data)
+    }
     useEffect(() => {
-        const response = async () => {
-            const result = await axios.get("https://670a8197ac6860a6c2c9b555.mockapi.io/ListTask");
-            setListTasks(result.data)
-        }
         response();
     }, [])
 
     return (
-        <div className=" h-[100%] p-10 bg-slate-400 flex ">
-
-            <ReactSortable
-                animation={150} // Thêm hiệu ứng khi kéo
-                group="shared1"
-                list={listTask}
-                setList={setListTasks}
-                className=" flex"
-                on
+        <div className=" h-[100%] flex ">
+            <div
+                className="h-[100%] w-[100%] p-10  overflow-x-auto flex"
+                style={{
+                    backgroundImage: `url(${ImgBackground})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    // filter: 'blur(8px)', // Điều chỉnh độ mờ của nền
+                }}
             >
-                {listTask.map((Task) => {
-                    console.log(Task);
-                    return (
-                        <div className="w-[16vw] h-[30%] mx-[30px]">
-                            <ListTask titleName={Task.title} idList={Task.id} className="">
-                            </ListTask>
-                        </div>
-                    )
-                })}
 
-
-            </ReactSortable>
-
-
-            {/* {listTask} */}
-            <div className="flex flex-col mx-[30px]">
-                {/* Input cho tiêu đề */}
-                <input
-                    type="text"
-                    value={newListTitle}
-                    onChange={(e) => setNewListTitle(e.target.value)} // Cập nhật tiêu đề
-                    placeholder="Enter list title"
-                    className="mb-2 p-2 rounded-md border border-gray-300"
-                />
-                <button
-                    onClick={addListTask}
-                    className="h-[30px] w-[10vw] bg-black text-slate-100 font-medium"
+                <ReactSortable
+                    animation={150} // Thêm hiệu ứng khi kéo
+                    group="shared1"
+                    list={listTask}
+                    setList={setListTasks}
+                    className="flex " // Đưa ReactSortable lên trên nền mờ
                 >
-                    <p>Add another list</p>
-                </button>
-            </div>
+                    {listTask.map((Task) => (
+                        <div key={Task.id} className="w-[16vw] h-[30%] mx-[30px]">
+                            <ListTask titleName={Task.title} updateListTask={response} idList={Task.id} />
+                        </div>
+                    ))}
+                </ReactSortable>
+
+                <div className="flex flex-col mx-[30px] "> {/* Đảm bảo nằm trên nền mờ */}
+                    {/* Input cho tiêu đề */}
+                    <input
+                        type="text"
+                        value={newListTitle}
+                        onChange={(e) => setNewListTitle(e.target.value)} // Cập nhật tiêu đề
+                        placeholder="Enter list title"
+                        className="mb-2 p-2 rounded-md bg-slate-600 border border-gray-300"
+                    />
+                    <button
+                        onClick={addListTask}
+                        className="h-[30px] rounded-md w-[10vw] bg-black text-slate-100 font-medium"
+                    >
+                        <p>Add another list</p>
+                    </button>
+                </div>
+            </div >
         </div>
     );
 };

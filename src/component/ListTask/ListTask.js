@@ -7,7 +7,7 @@ import EditAbleText from "../EditAbleText/EditAbleText";
 import { ReactSortable } from "react-sortablejs";
 import axios from "axios";
 import iconCancel from './../../assets/IconCancel.png'
-const ListTask = ({ titleName, idList }) => {
+const ListTask = ({ titleName, idList, updateListTask }) => {
 
     const [titleList, setTitleList] = useState(titleName);
     const [isChangeTitleList, setIsChangeTitleList] = useState(false);
@@ -53,11 +53,11 @@ const ListTask = ({ titleName, idList }) => {
             ListTaskId: idList,
 
         })
+        await fetchTasks();
+        await updateListTask();
         setAddTaskIsOpen(false);
     }
-    useEffect(() => {
 
-    }, [titleList])
     const handleAddTask = () => {
         setAddTaskIsOpen(true);
     }
@@ -96,17 +96,31 @@ const ListTask = ({ titleName, idList }) => {
         }
     }, [tasks, idList]); // Chạy lại khi tasks hoặc idList thay đổi
 
-    useEffect(() => {
-        const fetchTasks = async () => {
+    const handleDeleteListTask = async () => {
+        const result = window.confirm("This list task will be deleted. Are u sure ?");
+        if (result) {
             try {
-                const result = await axios.get(`https://670a8197ac6860a6c2c9b555.mockapi.io/ListTask/${idList}/Task`);
-                setTasks(result.data); // Lấy dữ liệu từ result.data
+                const deleteData = await axios.delete(`https://670a8197ac6860a6c2c9b555.mockapi.io/ListTask/${idList}`);
+                await updateListTask()
+
             } catch (error) {
-                console.error("Error fetching tasks:", error);
+                console.log("faild delete ListTask");
             }
-        };
+        }
+    }
+
+    const fetchTasks = async () => {
+        try {
+            const result = await axios.get(`https://670a8197ac6860a6c2c9b555.mockapi.io/ListTask/${idList}/Task`);
+            setTasks(result.data); // Lấy dữ liệu từ result.data
+        } catch (error) {
+            console.error("Error fetching tasks:", error);
+        }
+    };
+    useEffect(() => {
         fetchTasks();
-    }, [])
+    }, []); // Thêm idList để khi idList thay đổi thì polling cũng thay đổi theo
+
     const customStyles = {
         content: {
             top: '50%',
@@ -126,10 +140,13 @@ const ListTask = ({ titleName, idList }) => {
 
     return (
         <div className="w-[100%] rounded-md bg-black px-[15px] py-[10px]	">
+            <div className="flex">
+                <p className="text-slate-100 m-auto font-bold text-lg mb-[15px]">
+                    <EditAbleText text1={titleList} setIsChangeTitleList={setIsChangeTitleList} setText1={setTitleList}></EditAbleText>
+                </p>
+                <button className="rounded-md h-[35px] p-[2px] bg-slate-500	" onClick={handleDeleteListTask}> <img className=" h-[30px]" src={iconCancel}></img> </button>
+            </div>
 
-            <p className="text-slate-100 m-auto font-bold text-lg mb-[15px]">
-                <EditAbleText text1={titleList} setIsChangeTitleList={setIsChangeTitleList} setText1={setTitleList}></EditAbleText>
-            </p>
 
             <ReactSortable
                 group="shared"
@@ -185,7 +202,7 @@ const ListTask = ({ titleName, idList }) => {
                     onRequestClose={closeModal}
                     style={customStyles}
                 >
-                    <ModalTask titleList={titleList} idlist={idList} task={currTask} closeModall={closeModal}></ModalTask>
+                    <ModalTask titleList={titleList} idlist={idList} task={currTask} fecthListTask={fetchTasks} closeModall={closeModal}></ModalTask>
                 </Modal>
             </div>
 

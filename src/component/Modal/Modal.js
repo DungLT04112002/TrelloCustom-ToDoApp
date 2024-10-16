@@ -6,7 +6,7 @@ import AttachFile from "./../../assets/AttachFileIcon.png"
 import EditAbleText from "../EditAbleText/EditAbleText";
 import CheckIcon from "./../../assets/CheckIcon.png"
 import axios from "axios";
-const ModalTask = ({ idlist, titleList, task, closeModall }) => {
+const ModalTask = ({ idlist, titleList, task, closeModall, fecthListTask }) => {
     const [titleList1, setTitleList1] = useState(titleList);
     const [isChangeTitleList, setIsChangeTitleList] = useState(false);
     const [titleTask1, setTitleTask1] = useState(task.nameTask);
@@ -31,7 +31,15 @@ const ModalTask = ({ idlist, titleList, task, closeModall }) => {
             })
         }
         if (isChangeTitleList) {
-            updateNameTask();
+            const handleUpdateAndFetch = async () => {
+                try {
+                    await updateNameTask();
+                    await fecthListTask();
+                } catch (error) {
+                    console.error("Lỗi khi cập nhật và lấy danh sách tasks", error);
+                }
+            };
+            handleUpdateAndFetch();
             setIsChangeTitleList(false);
         }
     }, [titleTask1])
@@ -75,11 +83,30 @@ const ModalTask = ({ idlist, titleList, task, closeModall }) => {
                 description: description,
                 nameTask: titleTask1,
             });
-            closeModall();
+            await closeModall();
+            await fecthListTask();
         } catch (error) {
             console.error("Cập nhật task thất bại", error);
         }
     };
+    const deleteTask = async () => {
+        const result = window.confirm('This task will be deleted. Are you sure ?')
+        if (result) {
+            try {
+                await axios.delete(`https://670a8197ac6860a6c2c9b555.mockapi.io/ListTask/${idlist}/Task/${idTask}`)
+                await fecthListTask();
+            } catch (error) {
+                console.error("Cập nhật task thất bại", error);
+            }
+            closeModall();
+
+
+        }
+        else {
+
+        }
+
+    }
 
     useEffect(() => {
         console.log("task", task);
@@ -104,7 +131,7 @@ const ModalTask = ({ idlist, titleList, task, closeModall }) => {
                 <div >
                     <div className="flex items-center h-[40px]">
                         <img src={iconTopic} className="w-[30px] mr-[20px]"></img>
-                        <p className="text-xl font-bold"><EditAbleText text1={titleTask1} setText1={setTitleTask1} setIsChangeTitleList={setIsChangeTitleList}>
+                        <p className="text-xl font-bold border rounded-md border-transparent border-4 hover:border-gray-50"><EditAbleText text1={titleTask1} setText1={setTitleTask1} setIsChangeTitleList={setIsChangeTitleList}>
                         </EditAbleText></p>
                     </div>
                     <div className="flex ml-[50px] p-[2px] mt-[10px] items-center">
@@ -181,8 +208,13 @@ const ModalTask = ({ idlist, titleList, task, closeModall }) => {
 
             </div>
             <div className="w-[20%] text-right">
-                <button onClick={closeModall} className="bg-gray-600 p-auto px-[10px] font-bold rounded-md h-[50px]"> Close</button>
-                <button onClick={updateTask} className="bg-gray-600 p-auto px-[10px] font-bold rounded-md h-[50px]"> Save</button>
+                <div>
+
+                    <button onClick={updateTask} className="bg-sky-600 p-auto px-[5px] font-bold rounded-md h-[40px] mr-[20px]"> Save</button>
+                    <button onClick={deleteTask} className="bg-red-600 p-auto px-[5px] font-bold rounded-md h-[40px] mr-[20px]"> Delete</button>
+                    <button onClick={closeModall} className="bg-gray-600 p-auto px-[5px] font-bold rounded-md h-[40px]"> Close</button>
+
+                </div>
 
             </div>
 
